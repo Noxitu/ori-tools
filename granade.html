@@ -10,7 +10,7 @@ body, td, button {
     <tr><td>Jump:<td><button id="set_jump_key"></button></tr>
     </table>
 
-    <h1 id="time">___ms</h1>
+    <h1 id="time">___ms<br>__% chance</h1>
 </body>
 
 <script>
@@ -70,9 +70,16 @@ set_key_enable('jump');
 var last_granade = performance.now();
 var last_jump = performance.now();
 
+const odds = {count: 0, chance: 1};
+
 function update()
 {
-  document.querySelector('#time').innerHTML = Math.round(last_jump - last_granade) + 'ms';
+  var frame = 1000/60;
+  var time = last_jump - last_granade;
+  var success = Math.max(0, 1-Math.abs(frame-time)/frame);
+  odds.chance = (odds.chance * odds.count + success)/(odds.count+1);
+  odds.count += 1;
+  document.querySelector('#time').innerHTML = `${Math.round(time)}ms<br>${Math.round(success*100)}% chance<br>${Math.round(odds.chance*100)}% total chance`;
 }
 
 addEventListener('keydown', function(event)
