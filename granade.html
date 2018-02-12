@@ -1,0 +1,98 @@
+<style>
+body, td, button {
+    font-size: 44px !important;
+}
+</style>
+
+<body>
+    <table>
+    <tr><td>Granade:<td><button id="set_granade_key"></button></tr>
+    <tr><td>Jump:<td><button id="set_jump_key"></button></tr>
+    </table>
+
+    <h1 id="time">___ms</h1>
+</body>
+
+<script>
+function get_keybinds()
+{
+    try
+    {
+        return JSON.parse(localStorage.getItem('ori-granade-keybinds') || 'not json');
+    }
+    catch(ex)
+    {
+        return {granade: {key: 'P', code: 80}, jump: {key: 'L', code: 76}};
+    }
+}
+
+var current_keybinds = get_keybinds();
+
+document.querySelector('#set_granade_key').innerHTML = current_keybinds.granade.key;
+document.querySelector('#set_jump_key').innerHTML = current_keybinds.jump.key;
+var granade_key = current_keybinds.granade.code;
+var jump_key = current_keybinds.jump.code;
+
+function set_key_enable(id)
+{
+    const button = document.querySelector(`#set_${id}_key`);
+
+    function on_click()
+    {
+        button.innerHTML = '[Press key to set]';
+        addEventListener('keydown', on_keydown);
+    }
+
+    function on_keydown(event)
+    {
+        switch(event.keyCode)
+        {
+        case 32:
+            button.innerHTML = 'Space';
+            break;
+        default:
+            button.innerHTML = event.key;
+        }
+        window[`${id}_key`] = event.keyCode;
+        removeEventListener('keydown', on_keydown);
+        event.preventDefault(); 
+
+        current_keybinds[id] = {key: button.innerHTML, code: event.keyCode};
+        localStorage.setItem('ori-granade-keybinds', JSON.stringify(current_keybinds));
+    }
+
+    button.addEventListener('click', on_click);
+}
+
+set_key_enable('granade');
+set_key_enable('jump');
+
+var last_granade = performance.now();
+var last_jump = performance.now();
+
+function update()
+{
+  document.querySelector('#time').innerHTML = Math.round(last_jump - last_granade) + 'ms';
+}
+
+addEventListener('keydown', function(event)
+{
+  var attempt = false;
+  switch (event.keyCode)
+  {
+  case granade_key:
+    last_granade = performance.now();
+    attempt = (last_granade-last_jump < 200);
+    break;
+  case jump_key:
+    last_jump = performance.now();
+    attempt = (last_jump-last_granade < 200);
+    break;
+  }
+
+  if (attempt)
+  {
+    update();
+  }
+}, false);
+</script>
