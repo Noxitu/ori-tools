@@ -1,0 +1,66 @@
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<style>
+html {
+    font-family: sans-serif;
+}
+#saves {
+    display: inline-block;
+}
+.save {
+    background: #eee;
+    padding: 6px 15px;
+    margin-bottom: 1px;
+}
+.save:not(.active):hover {
+    cursor: pointer;
+    background: #edd;
+}
+.save > span {
+    vertical-align: middle;
+    display: inline-block;
+}
+.save-icon {
+    color: #888;
+    margin-right: 30px;
+}
+.save.active .save-icon {
+    color: #f00;
+}
+.save.active .save-title {
+    font-weight: bold;
+}
+.save-success {
+    margin-left: 30px;
+    font-size: .8em;
+}
+</style>
+
+<div id="saves"></div>
+
+<script>
+function on_save_click(target)
+{
+    return event => {
+        document.querySelectorAll('.save.active').forEach( e => e.classList.remove('active') );
+        target.classList.add('active');
+        
+        const body = {'savefile': target.dataset.savefile};
+        fetch('/activate-save', {method: 'post', body: JSON.stringify(body)});
+    }
+}
+
+fetch('/saves.json')
+    .then( data => data.json() )
+    .then( data => {
+        var html = [];
+        data.save_list.forEach( save => { 
+            html.push(`<div data-savefile="${save.file}" class="save">`);
+            html.push(`<span class="save-icon"><i class="material-icons">${save.icon}</i></span>`);
+            html.push(`<span class="save-title">${save.name}</span>`);
+            //html.push(`<span class="save-success">- - %</span>`);
+            html.push('</div>');
+        } );
+        document.querySelector('#saves').innerHTML = html.join('');
+        document.querySelectorAll('.save').forEach( e => e.addEventListener('click', on_save_click(e)) );
+    });
+</script>
