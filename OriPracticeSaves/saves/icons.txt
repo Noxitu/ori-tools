@@ -1,0 +1,11 @@
+Ginso keydup vpn_key
+Grotto skip eject
+Grove Exit settings_ethernet
+Kuro skip do_not_disturb
+Misty after last keystone gesture
+Sorrow Bash airplanemode_inactive
+Sorrow Spikes landscape
+Stompless sentiment_very_satisfied
+Swamp entry and cell format_color_reset
+Horu landscape
+Horu Escape landscape

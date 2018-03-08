@@ -15,6 +15,10 @@ html {
     cursor: pointer;
     background: #edd;
 }
+.save-group:not(.active):hover {
+    cursor: pointer;
+    background: #ded;
+}
 .save > span {
     vertical-align: middle;
     display: inline-block;
@@ -26,12 +30,18 @@ html {
 .save.active .save-icon {
     color: #f00;
 }
+.save-group.active .save-icon {
+    color: #0c0;
+}
 .save.active .save-title {
     font-weight: bold;
 }
 .save-success {
     margin-left: 30px;
     font-size: .8em;
+}
+.save:not(.save-group)[data-save-group]:not([data-save-group=""]):not(.group-active) {
+    display: none;
 }
 </style>
 
@@ -41,7 +51,7 @@ html {
 function on_save_click(target)
 {
     return event => {
-        document.querySelectorAll('.save.active').forEach( e => e.classList.remove('active') );
+        document.querySelectorAll('.save:not(.save-group).active').forEach( e => e.classList.remove('active') );
         target.classList.add('active');
         
         const body = {'savefile': target.dataset.savefile};
@@ -49,18 +59,42 @@ function on_save_click(target)
     }
 }
 
+function on_savegroup_click(target)
+{
+    return event => {
+        document.querySelectorAll('.save.active').forEach( e => e.classList.remove('active') );
+        target.classList.add('active');
+
+        var group = target.dataset.saveGroup;
+        document.querySelectorAll(`.group-active`).forEach( e => e.classList.remove('group-active') )
+        document.querySelectorAll(`.save[data-save-group="${group}"]`).forEach( e => e.classList.add('group-active') )
+    }
+}
+
 fetch('/saves.json')
     .then( data => data.json() )
     .then( data => {
+        var groups = {'': true};
         var html = [];
         data.save_list.forEach( save => { 
-            html.push(`<div data-savefile="${save.file}" class="save">`);
+            if (groups[save.group] !== true)
+            {
+                html.push(`<div data-save-group="${save.group}" class="save save-group">`);
+                html.push(`<span class="save-icon"><i class="material-icons">folder</i></span>`);
+                html.push(`<span class="save-title">${save.group}</span>`);
+                html.push('</div>');
+
+                groups[save.group] = true;
+            }
+
+            html.push(`<div data-save-group="${save.group}" data-savefile="${save.file}" class="save">`);
             html.push(`<span class="save-icon"><i class="material-icons">${save.icon}</i></span>`);
             html.push(`<span class="save-title">${save.name}</span>`);
             //html.push(`<span class="save-success">- - %</span>`);
             html.push('</div>');
         } );
         document.querySelector('#saves').innerHTML = html.join('');
-        document.querySelectorAll('.save').forEach( e => e.addEventListener('click', on_save_click(e)) );
+        document.querySelectorAll('.save:not(.save-group)').forEach( e => e.addEventListener('click', on_save_click(e)) );
+        document.querySelectorAll('.save.save-group').forEach( e => e.addEventListener('click', on_savegroup_click(e)) );
     });
 </script>
