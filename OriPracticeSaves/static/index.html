@@ -4,14 +4,27 @@ html {
     font-family: sans-serif;
 }
 #saves {
-    display: inline-block;
+    display: inline-grid;
+    grid-gap: 1px;
 }
 .save {
-    background: #eee;
-    padding: 6px 15px;
-    margin-bottom: 1px;
+    display: contents;
+    grid-template-columns: repeat(auto, 20);
 }
-.save:not(.active):hover {
+
+.save > .cell.save-name-cell {
+    grid-column: 1;
+    padding: 6px 15px;
+}
+.save > .cell {
+    padding: 6px 15px 0;
+}
+
+.save > .cell {
+    background: #eee;
+}
+
+.save:not(.active):hover > .cell {
     cursor: pointer;
     background: #edd;
 }
@@ -19,7 +32,7 @@ html {
     cursor: pointer;
     background: #ded;
 }
-.save > span {
+.save > .cell > span {
     vertical-align: middle;
     display: inline-block;
 }
@@ -80,17 +93,83 @@ fetch('/saves.json')
             if (groups[save.group] !== true)
             {
                 html.push(`<div data-save-group="${save.group}" class="save save-group">`);
+                html.push('<div class="cell save-name-cell">');
                 html.push(`<span class="save-icon"><i class="material-icons">folder</i></span>`);
                 html.push(`<span class="save-title">${save.group}</span>`);
+                html.push('</div>');
+
                 html.push('</div>');
 
                 groups[save.group] = true;
             }
 
             html.push(`<div data-save-group="${save.group}" data-savefile="${save.file}" class="save">`);
+
+            html.push('<div class="cell save-name-cell">');
             html.push(`<span class="save-icon"><i class="material-icons">${save.icon}</i></span>`);
             html.push(`<span class="save-title">${save.name}</span>`);
+            html.push('</div>');
             //html.push(`<span class="save-success">- - %</span>`);
+
+            if (save.area)
+            {
+                html.push('<div class="cell" style="grid-column: 2; padding: 0; background-size: 109px 38px;');
+                html.push(`height: 38px; width: 109px; background-image: url(areas/${save.area}.png);">`);
+                //html.push(save.area);
+                html.push('</div>');
+            }
+
+            if (save.deaths)
+            {
+                html.push('<div class="cell" style="grid-column: 3; padding-top: 4px; font-size: 125%;">');
+                html.push(`${save.deaths}&#9760;`);
+                html.push('</div>');
+            }
+
+            if (save.hp)
+            {
+                html.push('<div class="cell" style="grid-column: 4; padding-top: 1px; font-size: 200%; color: #7c3;">');
+                html.push(`<span style="">${'&#9679;'.repeat(save.hp.current)}</span>`);
+                html.push(`<span style="opacity: .35;">${'&#9679;'.repeat(save.hp.max-save.hp.current)}</span>`);
+                html.push('</div>');
+            }
+
+            if (save.energy && save.energy.max != 0)
+            {
+                html.push('<div class="cell" style="grid-column: 5; padding-top: 1px; font-size: 200%; color: #59F;">');
+                html.push(`<span style="">${'&#9679;'.repeat(save.energy.current)}</span>`);
+                html.push(`<span style="opacity: .35;">${'&#9679;'.repeat(save.energy.max-save.energy.current)}</span>`);
+                html.push('</div>');
+            }
+
+
+            if (false && save.time)
+            {
+                html.push('<div class="cell" style="grid-column: 6; padding-top: 6px;">');
+                html.push(`&#128338; ${save.time}`);
+                html.push('</div>');
+            }
+
+            if (save.skill_mask && save.skill_mask.some(x => x))
+            {
+                html.push('<div class="cell" style="grid-column: 7; padding-top: 1px; font-size: 200%;">');
+                for (var i = 0; i < 11; ++i)
+                {
+                    html.push(`<span style="${save.skill_mask[i] ? "" : "opacity: .15;"}">&#9679;</span>`);
+                }
+                html.push('</div>');
+            }
+
+            if (save.event_mask && save.event_mask.some(x => x))
+            {
+                html.push('<div class="cell" style="grid-column: 8; padding-top: 1px; font-size: 200%;">');
+                for (var i = 0; i < 6; ++i)
+                {
+                    html.push(`<span style="${save.event_mask[i] ? "" : "opacity: .15;"}">&#9679;</span>`);
+                }
+                html.push('</div>');
+            }
+
             html.push('</div>');
         } );
         document.querySelector('#saves').innerHTML = html.join('');

@@ -37,6 +37,8 @@ def list_saves():
 
             rel_dirpath = dirpath[len(SAVES_PATH):].lstrip('\\')
             icons = {}
+            more_info = {}
+
             if 'icons.txt' in filenames:
                 path = os.path.join(dirpath, 'icons.txt')
                 for line in open(path):
@@ -44,6 +46,10 @@ def list_saves():
                     if not line: continue
                     name, _, icon = line.rpartition(' ')
                     icons[name] = icon
+
+            if 'info.txt' in filenames:
+                path = os.path.join(dirpath, 'info.txt')
+                more_info = json.load(open(path))
 
             for filename in filenames:
                 if not filename.endswith('.sav'):
@@ -56,12 +62,16 @@ def list_saves():
 
                 name = name.replace('..', ':')
 
-                yield {
+                data = {
                     'name': name,
                     'file': os.path.join(rel_dirpath, filename),
                     'icon': icons.get(name, 'sd_storage'),
                     'group': rel_dirpath
                 }
+
+                data.update(more_info.get(name, {}))
+
+                yield data
 
     return json.dumps({'save_list': list(generator())})
 

@@ -43,7 +43,7 @@ with hotkey.EventLoop():
                     name = timediff2str(last_modified-ZERO_TIME)
                     print('Storing backup save:', name)
                     target_path = os.path.join(BACKUP_DIRECTORY, name+'.sav')
-                    target_path = target_path.replace(':', '-colon-')
+                    target_path = target_path.replace(':', '..')
                     shutil.copy(PATH, target_path)
 
             except FileNotFoundError:
