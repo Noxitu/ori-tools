@@ -12,7 +12,7 @@ def ori_replace_save(id, source_path):
     target_path = ori_get_save_path(id)
     os.chmod(target_path, stat.S_IREAD | stat.S_IWRITE)
     shutil.copy(source_path, target_path)
-    os.chmod(target_path, stat.S_IREAD)
+    # os.chmod(target_path, stat.S_IREAD)
 
 if __name__ == '__main__':
     source_path = R'D:\Sources\ori-tools\OriPracticeSaves\saveMisty.sav'

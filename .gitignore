@@ -1,0 +1,6 @@
+__pycache__/
+/virtual_env/
+*.egg-info/
+*.sav
+*.dll
+_bak/
